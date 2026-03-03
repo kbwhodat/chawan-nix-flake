@@ -52,8 +52,6 @@ jobs:
     runs-on: macos-15-intel
     steps:
       - uses: actions/checkout@v4
-      - name: Check flake inputs
-        uses: DeterminateSystems/flake-checker-action@v12
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
       - name: Set up Cachix
