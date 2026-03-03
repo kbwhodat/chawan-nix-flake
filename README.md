@@ -27,7 +27,13 @@ programs.chawan.package = inputs.chawan-flake.packages.${pkgs.system}.default;
 
 - `x86_64-linux`
 - `aarch64-linux`
-- `x86_64-darwin`
+- `aarch64-darwin`
+
+## CI and cache coverage
+
+GitHub Actions currently builds and pushes binaries to Cachix for:
+
+- `x86_64-linux`
 - `aarch64-darwin`
 
 ## Updating
