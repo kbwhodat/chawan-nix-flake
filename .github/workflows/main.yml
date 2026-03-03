@@ -24,7 +24,9 @@ jobs:
       - name: Build and push to Cachix
         run: |
           cachix watch-exec chawan-nix-flake -- \
-            nix build .#packages.x86_64-linux.default --print-out-paths
+            nix build .#packages.x86_64-linux.default \
+              --print-out-paths \
+              --option substitute false
 
   build-macos:
     name: Build for macOS
@@ -43,5 +45,7 @@ jobs:
       - name: Build and push to Cachix
         run: |
           cachix watch-exec chawan-nix-flake -- \
-            nix build .#packages.aarch64-darwin.default --print-out-paths
+            nix build .#packages.aarch64-darwin.default \
+              --print-out-paths \
+              --option substitute false
       - run: nix eval .#packages.x86_64-darwin.default.name
