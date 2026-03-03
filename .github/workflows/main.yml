@@ -1,0 +1,42 @@
+name: Check and build packages
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+jobs:
+  build-linux:
+    name: Build for x86_64-linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check flake inputs
+        uses: DeterminateSystems/flake-checker-action@v12
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+      - name: Set up Cachix
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        uses: cachix/cachix-action@v16
+        with:
+          name: chawan-nix-flake
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+      - run: nix flake check
+      - run: nix build .#packages.x86_64-linux.default
+
+  build-macos:
+    name: Build for x86_64-darwin
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check flake inputs
+        uses: DeterminateSystems/flake-checker-action@v12
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+      - name: Set up Cachix
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        uses: cachix/cachix-action@v16
+        with:
+          name: chawan-nix-flake
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+      - run: nix build .#packages.x86_64-darwin.default
