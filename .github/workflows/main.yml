@@ -16,19 +16,15 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
       - name: Set up Cachix
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         uses: cachix/cachix-action@v16
         with:
           name: chawan-nix-flake
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - run: nix flake check
-      - run: nix build .#packages.x86_64-linux.default --print-out-paths
-      - name: Push Linux closure to Cachix
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+      - name: Build and push to Cachix
         run: |
-          set -euo pipefail
-          out_path="$(nix build .#packages.x86_64-linux.default --no-link --print-out-paths)"
-          nix path-info -r "$out_path" | cachix push chawan-nix-flake
+          cachix watch-exec chawan-nix-flake -- \
+            nix build .#packages.x86_64-linux.default --print-out-paths
 
   build-macos:
     name: Build for macOS
@@ -40,16 +36,12 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
       - name: Set up Cachix
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         uses: cachix/cachix-action@v16
         with:
           name: chawan-nix-flake
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-      - run: nix build .#packages.aarch64-darwin.default --print-out-paths
-      - run: nix eval .#packages.x86_64-darwin.default.name
-      - name: Push macOS closure to Cachix
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+      - name: Build and push to Cachix
         run: |
-          set -euo pipefail
-          out_path="$(nix build .#packages.aarch64-darwin.default --no-link --print-out-paths)"
-          nix path-info -r "$out_path" | cachix push chawan-nix-flake
+          cachix watch-exec chawan-nix-flake -- \
+            nix build .#packages.aarch64-darwin.default --print-out-paths
+      - run: nix eval .#packages.x86_64-darwin.default.name
